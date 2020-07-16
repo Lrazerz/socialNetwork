@@ -1,0 +1,12 @@
+// @route   DELETE api/profile/
+// @desc    Delete current user (profile and posts too)
+// @access  Public
+
+router.delete('/', authMiddleware, (req,res) => {
+  try {
+
+  } catch (e) {
+    console.error(e.message);
+    res.status(500).send('Server error');
+  }
+})
