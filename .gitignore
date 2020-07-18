@@ -117,4 +117,4 @@ dist
 
 # private config
 config
-blank
+*.blank

@@ -8,7 +8,7 @@ const authMiddleware = require('../../middleware/auth');
 const User = require('../../models/User');
 
 // @route   GET api/auth
-// @desc    gets header with token and returns user info
+// @desc    Gets header with token and returns user info
 // @access  Private
 
 router.get('/', authMiddleware, async (req, res) => {
@@ -23,8 +23,8 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // @route   POST api/auth
-// @desc    login
-// @access  Private
+// @desc    Login
+// @access  Public
 
 router.post('/',
   [
@@ -43,7 +43,7 @@ router.post('/',
       const user = await User.findOne({email});
       if (!user) {
         // Identical messages for security purpose
-        return res.status(401).json({msg: 'Invalid credentials'});
+        return res.status(401).json({errors: [{msg: 'Invalid credentials'}]});
       }
 
       const isMatch = await bcrypt.compare(password, user.password);

@@ -10,3 +10,15 @@ router.delete('/', authMiddleware, (req,res) => {
     res.status(500).send('Server error');
   }
 })
+
+import React from 'react';
+
+const A = () => {
+  return (
+    <div>
+
+    </div>
+  )
+}
+
+export default A;
