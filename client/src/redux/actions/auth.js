@@ -1,6 +1,15 @@
 import axios from 'axios';
 import {setAlert} from "./alert";
-import {REGISTER_SUCCESS, REGISTER_FAIL, USER_LOADED, AUTH_ERROR, LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT} from "./types";
+import {
+  REGISTER_SUCCESS,
+  REGISTER_FAIL,
+  USER_LOADED,
+  AUTH_ERROR,
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  LOGOUT,
+  PROFILE_CLEAR
+} from "./types";
 import setAuthToken from "../../utils/setAuthToken";
 
 const _registerUserSuccess = (payload) => {
@@ -31,6 +40,10 @@ const _logoutUser = () => {
   return {type: LOGOUT}
 }
 
+const _clearProfile = () => {
+  return {type: PROFILE_CLEAR}
+}
+
 // return user info
 
 export const loadUser = () => {
@@ -54,7 +67,7 @@ export const registerUser = (name, email, password) => {
       }
     }
 
-    const body = JSON.stringify({name,email,password});
+    const body = JSON.stringify({name, email, password});
 
     try {
       const res = await axios.post('/api/users', body, config);
@@ -64,12 +77,14 @@ export const registerUser = (name, email, password) => {
       dispatch(loadUser());
     } catch (e) {
       const {errors = null} = e.response.data;
-      if(errors) {
+      if (errors) {
         console.log('erorrs');
         errors.forEach(err => {
           console.log('foreach err', err);
           dispatch(setAlert(err.msg, 'danger'));
-        })};
+        })
+      }
+      ;
       dispatch(_registerUserFail());
     }
   }
@@ -83,7 +98,7 @@ export const loginUser = (email, password) => {
       }
     }
 
-    const body = JSON.stringify({email,password});
+    const body = JSON.stringify({email, password});
 
     try {
       const res = await axios.post('/api/auth', body, config);
@@ -93,12 +108,14 @@ export const loginUser = (email, password) => {
       dispatch(loadUser());
     } catch (e) {
       const {errors = null} = e.response.data;
-      if(errors) {
+      if (errors) {
         console.log('erorrs');
         errors.forEach(err => {
           console.log('foreach err', err);
           dispatch(setAlert(err.msg, 'danger'));
-        })};
+        })
+      }
+      ;
       dispatch(_loginUserFail());
     }
   }
@@ -106,6 +123,7 @@ export const loginUser = (email, password) => {
 
 export const logoutUser = () => {
   return async dispatch => {
+    dispatch(_clearProfile());
     dispatch(_logoutUser());
   }
 }

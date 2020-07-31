@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const authMiddleware = require('../../middleware/auth');
-const {check, validationResult} = require('express-validator');
+const {body, validationResult} = require('express-validator');
 const User = require('../../models/User');
-const Profile = require('../../models/Profile');
 const Post = require('../../models/Post');
 
 // Adding posts, likes, comments
@@ -11,17 +10,15 @@ const Post = require('../../models/Post');
 // @route   POST api/posts
 // @desc    Create a post
 // @access  Private
-router.post('/',
-  [
+router.post('/', [
     authMiddleware,
     [
-      check('text').notEmpty().withMessage('Text is required')
+      body('text','Text is required').notEmpty()
     ]
-  ],
-  async (req, res) => {
+  ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors.array()})
+      return res.status(400).json({errors: errors})
     }
     try {
       const user = await User.findById(req.user.id).select('-password')
@@ -40,8 +37,7 @@ router.post('/',
       console.error(e);
       res.status(500).send('Server error');
     }
-  }
-)
+  })
 
 // @route   GET api/posts
 // @desc    Retrieve info about all posts
@@ -84,7 +80,6 @@ router.get('/:post_id', authMiddleware, async (req, res) => {
 router.delete('/:post_id', authMiddleware, async (req, res) => {
   try {
     const post = await Post.findById(req.params.post_id);
-
     if(!post) {
       return res.status(404).json({msg: "Post not found"});
     }
@@ -93,9 +88,7 @@ router.delete('/:post_id', authMiddleware, async (req, res) => {
       // 401 - not authorized
       return res.status(401).json({msg: "User not authorized"});
     }
-
     await post.remove();
-
     await res.json({msg: "Post successfully deleted"});
   } catch (e) {
     console.error(e.message);
@@ -119,7 +112,7 @@ router.put('/like/:post_id', authMiddleware, async (req, res) => {
     }
 
     // Check if the post has already been liked
-    if(post.likes.filter(like => like.user.toString() === req.user.id).length > 0) {
+    if(post.likes.find(el => el.user.toString() === req.user.id)) {
       return res.status(400).json({msg: "Post already liked"});
     }
 
@@ -174,8 +167,10 @@ router.put('/unlike/:post_id', authMiddleware, async (req, res) => {
 // @desc    Comment on a post
 // @access  Private
 router.post('/comment/:post_id',
-  [authMiddleware, [check('text').notEmpty().withMessage('Text is required')]],
-  async (req, res) => {
+  [
+    authMiddleware,
+    [body('text','Text is required').notEmpty()]
+  ], async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     let post = await Post.findById(req.params.post_id);

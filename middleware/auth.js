@@ -1,11 +1,10 @@
 // check header with x-auth-token
-// and next if all ok, 401 if not
+// and next if all ok, 401 (unauthorized) if not
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
 // middleware for private routes
 module.exports = (req,res,next) => {
-  // check header
   // req.header - alias to req.get
   const derivedToken = req.get('x-auth-token');
   if(!derivedToken) {

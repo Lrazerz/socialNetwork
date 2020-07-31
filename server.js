@@ -1,9 +1,8 @@
 const express = require('express');
 const app = express();
 const connectDB = require('./config/db');
-const bodyParser = require('body-parser');
-var jsonParser = bodyParser.json();
-app.use(jsonParser);
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
@@ -25,4 +24,10 @@ app.listen(PORT, () => {
 });
 
 
+// deleted bodyParser
+// add tokens array to User model +
+// add method to User document to hash password and save jwt +
 
+// maybe smth with express-validator
+
+// routes done

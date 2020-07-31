@@ -3,7 +3,7 @@ const router = express.Router();
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 const Post = require('../../models/Post');
-const {check, validationResult} = require('express-validator');
+const {body, validationResult} = require('express-validator');
 const authMiddleware = require('../../middleware/auth');
 const normalizeUrl = require('normalize-url');
 const request = require('request');
@@ -70,14 +70,14 @@ router.post('/',
   [
     authMiddleware,
     [
-      check('status').notEmpty().withMessage('Status is required'),
-      check('skills').notEmpty().withMessage('Skills is required'),
+      body('status','Status is required').notEmpty(),
+      body('skills','Skills is required').notEmpty()
     ]
   ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors.array()})
+      return res.status(400).json({errors: errors})
     }
 
     const {
@@ -96,6 +96,7 @@ router.post('/',
     } = req.body;
 
     // build profile fields object
+    // todo! we have token.user.id.toString(), and in model we have Schema.ObjectId conflict?
     const profileFields = {
       user: req.user.id,
       company,
@@ -117,7 +118,7 @@ router.post('/',
     };
 
     // normalize urls and add to profileFields
-    for (key in socialFields) {
+    for (const key in socialFields) {
       if (socialFields[key] && socialFields[key].length > 0) {
         socialFields[key] = normalizeUrl(socialFields[key], {forceHttps: true});
       }
@@ -140,14 +141,12 @@ router.post('/',
       // if profile not found
       profile = new Profile(profileFields);
       await profile.save();
-      res.json(profile);
-
+      res.status(201).json(profile);
     } catch (e) {
       console.error(e);
       res.status(500).send('Server error');
     }
-  }
-)
+  });
 
 // @route   DELETE api/profile/
 // @desc    Delete current user (profile and posts too)
@@ -156,7 +155,7 @@ router.post('/',
 router.delete('/', authMiddleware, async (req, res) => {
   try {
     await Profile.findOneAndDelete({user: req.user.id});
-    await Post.findOneAndDelete({user: req.user.id});
+    await Post.deleteMany({user: req.user.id});
     const user = await User.findOneAndDelete({_id: req.user.id});
     if(!user) {
       return res.status(404).json({msg: "User not found"});
@@ -174,15 +173,15 @@ router.delete('/', authMiddleware, async (req, res) => {
 router.put('/experience',
   [authMiddleware,
     [
-      check('title').notEmpty().withMessage('Title is required'),
-      check('company').notEmpty().withMessage('Company is required'),
-      check('from').notEmpty().withMessage('From is required')
+      body('title','Title is required').notEmpty(),
+      body('company','Company is required').notEmpty(),
+      body('from','From is required').notEmpty()
     ]
   ],async (req, res) => {
   const errors = validationResult(req);
   if(errors.length > 0) {
-    // todo always errors instead of errors: errors.array()
-    return res.status(400).json({errors: errors.array()});
+    // todo always errors instead of errors: errors
+    return res.status(400).json({errors});
   }
 
   const newExp = {
@@ -204,7 +203,7 @@ router.put('/experience',
 
     await profile.save();
 
-    res.json(profile);
+    res.status(200).json(profile);
   } catch (e) {
     console.error(e.message);
     res.status(500).send('Server error');
@@ -221,6 +220,10 @@ router.delete('/experience/:exp_id', authMiddleware,async (req,res) => {
     const profile = await Profile.findOne({user: req.user.id});
     // Get remove index
     const removeIndex = profile.experience.map(item => item.id).indexOf(req.params.exp_id);
+
+    if(removeIndex === -1) {
+      return res.status(404).json({msg: "Experience not found"});
+    }
     // delete 1 item from the index
     profile.experience.splice(removeIndex, 1);
 
@@ -238,16 +241,15 @@ router.delete('/experience/:exp_id', authMiddleware,async (req,res) => {
 router.put('/education',
   [authMiddleware,
     [
-      check('school').notEmpty().withMessage('School is required'),
-      check('degree').notEmpty().withMessage('Degree is required'),
-      check('fieldofstudy').notEmpty().withMessage('Field of study is required'),
-      check('from').notEmpty().withMessage('From is required')
+      body('school','School is required').notEmpty(),
+      body('degree','Degree is required').notEmpty(),
+      body('fieldofstudy','Field of study is required').notEmpty(),
+      body('from','From is required').notEmpty()
     ]
   ],async (req, res) => {
     const errors = validationResult(req);
     if(errors.length > 0) {
-      // todo always errors instead of errors: errors.array()
-      return res.status(400).json({errors: errors.array()});
+      return res.status(400).json({errors});
     }
 
     const newEducation = {
@@ -285,6 +287,9 @@ router.delete('/education/:edu_id', authMiddleware,async (req,res) => {
     // Get remove index
     const removeIndex = profile.education.map(item => item.id).indexOf(req.params.edu_id);
     // delete 1 item from the index
+    if(removeIndex === -1) {
+      return res.status(404).json({msg: 'Education not found'});
+    }
     profile.education.splice(removeIndex, 1);
 
     await profile.save();

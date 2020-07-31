@@ -7,3 +7,14 @@ export const AUTH_ERROR = 'AUTH_ERROR';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const LOGOUT = 'LOGOUT';
+
+// Profiles
+export const PROFILE_LOADED = 'PROFILE_LOADED';
+export const PROFILES_LOADED = 'PROFILES_LOADED';
+export const PROFILE_ERROR = 'PROFILE_ERROR';
+export const PROFILE_CLEAR = 'PROFILE_CLEAR';
+export const PROFILE_UPDATED = 'PROFILE_UPDATED';
+
+export const ACCOUTN_DELETED = 'ACCOUNT_DELETED';
+
+export const REPOS_LOADED = 'REPOS_LOADED'
