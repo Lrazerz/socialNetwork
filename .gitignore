@@ -116,5 +116,5 @@ dist
 .pnp.*
 
 # private config
-config
+config/default.json
 *.blank
