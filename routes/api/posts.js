@@ -30,9 +30,10 @@ router.post('/', [
         user: req.user.id
       });
 
-      const post = await newPost.save();
+      await newPost.save();
+      const posts = await Post.find().sort({date:-1});
 
-      res.json(post);
+      res.json(posts);
     } catch (e) {
       console.error(e);
       res.status(500).send('Server error');
@@ -89,7 +90,8 @@ router.delete('/:post_id', authMiddleware, async (req, res) => {
       return res.status(401).json({msg: "User not authorized"});
     }
     await post.remove();
-    await res.json({msg: "Post successfully deleted"});
+    const posts = await Post.find().sort({date:-1});
+    await res.json(posts);
   } catch (e) {
     console.error(e.message);
     // wrong format of id
@@ -106,6 +108,7 @@ router.delete('/:post_id', authMiddleware, async (req, res) => {
 // @access  Private
 router.put('/like/:post_id', authMiddleware, async (req, res) => {
   try {
+    console.log('try to find');
     let post = await Post.findById(req.params.post_id);
     if(!post) {
       return res.status(404).json({msg: "Post not found"});
@@ -229,7 +232,7 @@ router.delete('/comment/:post_id', authMiddleware, async (req, res) => {
 
     post = await post.save();
 
-    await res.json(post.likes);
+    await res.json(post.comments);
   } catch (e) {
     console.error(e.message);
     // wrong format of id

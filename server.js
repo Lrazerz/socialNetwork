@@ -22,12 +22,3 @@ app.use('/api/users', require('./routes/api/users'));
 app.listen(PORT, () => {
   console.log('server running on port', PORT);
 });
-
-
-// deleted bodyParser
-// add tokens array to User model +
-// add method to User document to hash password and save jwt +
-
-// maybe smth with express-validator
-
-// routes done

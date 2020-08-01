@@ -37,6 +37,7 @@ const _accountDeleted = () => {
 }
 
 const _reposLoaded = (repos) => {
+  console.log('respo loaded');
   return {type: REPOS_LOADED, repos};
 }
 
@@ -90,9 +91,10 @@ export const getGithubRepos = (username) => {
     try {
       const res = await axios.get(`/api/profile/github/${username}`);
 
-      dispatch(_profileLoaded(res.data));
+      dispatch(_reposLoaded(JSON.parse(res.data)));
 
     } catch (e) {
+      console.log(e);
       dispatch(_profileError(e.response.statusText, e.response.status));
     }
   }
