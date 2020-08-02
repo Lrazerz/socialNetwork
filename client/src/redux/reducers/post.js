@@ -1,6 +1,6 @@
 import {
   COMMENTS_LOADED,
-  LIKES_LOADED, POST_LOADED,
+  LIKES_LOADED, POST_LOADED, POST_STARTED_LOADING,
   POSTS_ERROR, POSTS_LOADED
 } from "../actions/types";
 
@@ -14,6 +14,11 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case POST_STARTED_LOADING:
+      return {
+        ...state,
+        loading: true
+      }
     case POSTS_LOADED:
       return {
         ...state,
@@ -27,7 +32,6 @@ export default (state = initialState, action) => {
         loading: false
       }
     case POSTS_ERROR:
-      console.log('posts error');
       return {
         ...state,
         error: action.error,

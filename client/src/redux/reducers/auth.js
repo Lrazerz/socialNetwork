@@ -5,7 +5,7 @@ import {
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  LOGOUT, ACCOUTN_DELETED
+  LOGOUT, ACCOUTN_DELETED, AUTH_STARTED_LOADING
 } from "../actions/types";
 
 // maybe isAuthenticated should be true
@@ -18,6 +18,11 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case AUTH_STARTED_LOADING:
+      return {
+        ...state,
+        loading: true
+      }
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
       localStorage.setItem('token', action.payload.token);

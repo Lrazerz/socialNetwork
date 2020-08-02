@@ -28,7 +28,7 @@ const PostItem = ({post: {_id, text, name, avatar, user, likes, comments, date},
           Posted on <Moment format='YYYY/MM/DD'>{date}</Moment>
         </p>
         {showActions &&
-        <>
+        (<>
           <button type="button" className="btn btn-light" onClick={() => dispatch(addLike(_id))}>
             <i className="fas fa-thumbs-up"></i>{' '}
             {likes.length > 0 && (<span>{likes.length}</span>)}
@@ -48,7 +48,7 @@ const PostItem = ({post: {_id, text, name, avatar, user, likes, comments, date},
               onClick={() => dispatch(deletePost(_id))}>
               <i className="fas fa-times"></i>
             </button>)}
-        </>
+        </>)
         }
       </div>
     </div>

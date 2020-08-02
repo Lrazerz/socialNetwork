@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {loginUser} from '../../redux/actions/auth';
 import {Redirect} from "react-router-dom";
+import Spinner from "../layout/Spinner";
 
 const Login = () => {
   // todo maybe with reducer
@@ -13,7 +14,7 @@ const Login = () => {
   const {email, password} = formData;
 
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(({auth}) => auth.isAuthenticated);
+  const {isAuthenticated, loading} = useSelector(({auth}) => auth);
 
   const onInputChange = e => setFormData({...formData, [e.target.name]: e.target.value});
 
@@ -24,6 +25,10 @@ const Login = () => {
 
   if(isAuthenticated) {
     return <Redirect to='/dashboard' />
+  }
+
+  if(loading) {
+    return <Spinner/>;
   }
 
   return (

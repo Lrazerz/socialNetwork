@@ -1,7 +1,7 @@
 import {
   PROFILE_CLEAR,
   PROFILE_ERROR,
-  PROFILE_LOADED,
+  PROFILE_LOADED, PROFILE_STARTED_LOADING,
   PROFILE_UPDATED,
   PROFILES_LOADED,
   REPOS_LOADED
@@ -17,6 +17,11 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case PROFILE_STARTED_LOADING:
+      return {
+        ...state,
+        loading: true
+      }
     case PROFILE_LOADED:
     case PROFILE_UPDATED:
       return {

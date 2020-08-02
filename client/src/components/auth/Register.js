@@ -3,6 +3,7 @@ import {Link, Redirect} from "react-router-dom";
 import {setAlert} from '../../redux/actions/alert';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerUser} from "../../redux/actions/auth";
+import Spinner from "../layout/Spinner";
 
 const Register = () => {
   // todo maybe with reducer
@@ -15,7 +16,7 @@ const Register = () => {
   const {name, email, password,password2} = formData;
 
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(({auth}) => auth.isAuthenticated);
+  const {isAuthenticated, loading} = useSelector(({auth}) => auth);
 
   const onInputChange = e => setFormData({...formData, [e.target.name]: e.target.value});
 
@@ -30,6 +31,10 @@ const Register = () => {
 
   if(isAuthenticated) {
     return <Redirect to='/dashboard' />
+  }
+
+  if(loading) {
+    return <Spinner/>;
   }
 
   return (

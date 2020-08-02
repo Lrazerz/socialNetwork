@@ -30,6 +30,10 @@ const UserSchema = new Schema({
       token: {
         type: String,
         required: true
+      },
+      expDateSeconds: {
+        type: String,
+        required: true
       }
     }
   ]
@@ -45,9 +49,17 @@ UserSchema.method('hashPassword', async function() {
 UserSchema.method('generateToken', async function() {
   const payload = {
     user: {id:this._id.toString()}
+  };
+  const token = await jwt.sign(payload, config.get('jwtSecret'), {expiresIn: '1h'});
+  const decodedToken = await jwt.decode(token);
+
+  // If reached max tokens count
+  if(this.tokens.length > 19) {
+    this.tokens.shift();
   }
-  const token = await jwt.sign(payload, config.get('jwtSecret'));
-  this.tokens = this.tokens.concat({token});
+  // Todo implement check token, maybe device
+  this.tokens.push({token: token, expDateSeconds: decodedToken.exp});
+
   await this.save();
   return token;
 });

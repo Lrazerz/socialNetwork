@@ -137,6 +137,7 @@ img {
     margin-right: 0.5rem;
     transition: opacity 0.2s ease-in;
     outline: none;
+    border-radius: 5px;
 }
 
 .badge {
@@ -154,6 +155,11 @@ img {
     opacity: 0.9;
     background: var(--light-color);
     color: #333;
+    position: absolute;
+    width: 350px;
+    height: 80px;
+    z-index: 100;
+    border-radius: 5px;
 }
 
 .btn-primary,
@@ -256,11 +262,13 @@ img {
     padding: 0.4rem;
     font-size: 1.2rem;
     border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 .form input[type='submit'],
 button {
     font: inherit;
+    border-radius: 5px;
 }
 
 .form .social-input {

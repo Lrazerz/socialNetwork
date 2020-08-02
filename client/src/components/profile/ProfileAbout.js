@@ -26,11 +26,6 @@ const ProfileAbout = ({profile}) => {
             </div>
           ))
         }
-        <div className="p-1"><i className="fa fa-check"></i> HTML</div>
-        <div className="p-1"><i className="fa fa-check"></i> CSS</div>
-        <div className="p-1"><i className="fa fa-check"></i> JavaScript</div>
-        <div className="p-1"><i className="fa fa-check"></i> Python</div>
-        <div className="p-1"><i className="fa fa-check"></i> C#</div>
       </div>
     </div>
   )

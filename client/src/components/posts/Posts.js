@@ -12,21 +12,28 @@ const Posts = () => {
   useEffect(() => {
     dispatch(getPosts());
   }, [getPosts]);
+
   if (loading) {
     return <Spinner/>
   }
-  console.log('posts length',posts);
   return (
     <>
       <h1 className="large text-primary">Posts</h1>
-      <i className="lead">
-        <i className="fas fa-user"></i> Welcome to the comunity
-      </i>
-      <PostForm />
+      <p className="lead">
+        <i className="fas fa-user"></i> Welcome to the community
+      </p>
+      <PostForm/>
       <div className="posts">
-        {posts.map(post => (
-          <PostItem key={post._id} post={post}/>
-        ))}
+        {
+          posts.length > 0 ? (posts.map(post => (
+            <PostItem key={post._id} post={post}/>
+          ))) : (
+            <>
+              <i className='far fa-frown fa-2x'/>
+              <span className='lead'> No posts yet</span>
+            </>
+          )
+        }
       </div>
     </>
   )

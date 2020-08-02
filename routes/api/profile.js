@@ -17,8 +17,7 @@ router.get('/', async (req, res) => {
     const profiles = await Profile.find().populate('user', ['name', 'avatar']);
     await res.json(profiles);
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -27,14 +26,13 @@ router.get('/', async (req, res) => {
 // @access  Private
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    // poopulate result with fields from user model (will be user: {name:...,avatar:...} as field)
+    // poopulate result with fields from user model (will be user: {name:...,avatar:...} as field on profile)
     const profile = await Profile.findOne({user: req.user.id}).populate('user', ['name', 'avatar']);
 
     if (!profile) {
-      return res.status(400).json({msg: "There is no profile for this user"});
+      return res.status(400).json([{msg: "There is no profile for this user"}]);
     }
-
-    res.json(profile);
+    res.status(200).json(profile);
   } catch (e) {
     console.error(e);
     res.status(500).send('Server error');
@@ -48,18 +46,15 @@ router.get('/user/:user_id', async (req, res) => {
   try {
     const profile = await Profile.findOne({user: req.params.user_id})
       .populate('user', ['name', 'avatar']);
+    if (!profile) return res.status(404).json([{msg: "Profile not found"}]);
 
-    if (!profile) return res.status(404).json({msg: "Profile not found"});
-
-    res.json(profile);
-
+    res.status(200).json(profile);
   } catch (e) {
-    console.error(e);
     // wrong format of id
     if (e.kind === 'ObjectId') {
-      res.status(404).json({msg: "Profile not found"});
+      res.status(404).json([{msg: "Profile not found"}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -70,14 +65,14 @@ router.post('/',
   [
     authMiddleware,
     [
-      body('status','Status is required').notEmpty(),
-      body('skills','Skills is required').notEmpty()
+      body('status', 'Status is required').notEmpty(),
+      body('skills', 'Skills is required').notEmpty()
     ]
   ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors})
+    const {errors} = validationResult(req);
+    if (errors.length > 0) {
+      return res.status(400).json(errors);
     }
 
     const {
@@ -96,7 +91,6 @@ router.post('/',
     } = req.body;
 
     // build profile fields object
-    // todo! we have token.user.id.toString(), and in model we have Schema.ObjectId conflict?
     const profileFields = {
       user: req.user.id,
       company,
@@ -126,10 +120,10 @@ router.post('/',
 
     profileFields.social = socialFields;
 
+    // update if profile exists
     try {
       let profile = await Profile.findOne({user: req.user.id});
       if (profile) {
-        // update if profile exists
         profile = await Profile.findOneAndUpdate(
           {user: req.user.id},
           {$set: profileFields},
@@ -138,32 +132,29 @@ router.post('/',
         return res.json(profile);
       }
 
-      // if profile not found
+      // create if not exists
       profile = new Profile(profileFields);
       await profile.save();
       res.status(201).json(profile);
     } catch (e) {
-      console.error(e);
-      res.status(500).send('Server error');
+      res.status(500).json([{msg: `Server error. ${e.message}`}])
     }
   });
 
 // @route   DELETE api/profile/
 // @desc    Delete current user (profile and posts too)
 // @access  Public
-// todo maybe transfer to api/users.js
 router.delete('/', authMiddleware, async (req, res) => {
   try {
     await Profile.findOneAndDelete({user: req.user.id});
     await Post.deleteMany({user: req.user.id});
     const user = await User.findOneAndDelete({_id: req.user.id});
-    if(!user) {
+    if (!user) {
       return res.status(404).json({msg: "User not found"});
     }
     res.json({msg: "User successfully deleted"})
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -173,65 +164,58 @@ router.delete('/', authMiddleware, async (req, res) => {
 router.put('/experience',
   [authMiddleware,
     [
-      body('title','Title is required').notEmpty(),
-      body('company','Company is required').notEmpty(),
-      body('from','From is required').notEmpty()
+      body('title', 'Title is required').notEmpty(),
+      body('company', 'Company is required').notEmpty(),
+      body('from', 'From is required').notEmpty()
     ]
-  ],async (req, res) => {
-  const errors = validationResult(req);
-  if(errors.length > 0) {
-    // todo always errors instead of errors: errors
-    return res.status(400).json({errors});
-  }
+  ],
+  async (req, res) => {
+    const {errors} = validationResult(req);
+    if (errors.length > 0) {
+      return res.status(400).json(errors);
+    }
 
-  const newExp = {
-    title,
-    company,
-    location,
-    from,
-    to,
-    current,
-    description
-  } = req.body;
+    const newExp = {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description
+    } = req.body;
 
-  try {
-    // get profile
-    const profile = await Profile.findOne({user: req.user.id});
+    try {
+      // get profile
+      const profile = await Profile.findOne({user: req.user.id});
 
-    // alter experience array
-    profile.experience.unshift(newExp);
+      // add experience to array
+      profile.experience.unshift(newExp);
+      await profile.save();
+      res.status(200).json(profile);
+    } catch (e) {
+      res.status(500).json([{msg: `Server error. ${e.message}`}])
+    }
+  })
 
-    await profile.save();
-
-    res.status(200).json(profile);
-  } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
-  }
-})
-
-// technically it can be a put, coz we updating, but we deleting too
-// all objects have uniq id
 // @route   DELETE api/profile/experiences/:exp_id
 // @desc    Delete experience from profile
 // @access  Private
-router.delete('/experience/:exp_id', authMiddleware,async (req,res) => {
+router.delete('/experience/:exp_id', authMiddleware, async (req, res) => {
   try {
     const profile = await Profile.findOne({user: req.user.id});
-    // Get remove index
+    // Find index
     const removeIndex = profile.experience.map(item => item.id).indexOf(req.params.exp_id);
-
-    if(removeIndex === -1) {
-      return res.status(404).json({msg: "Experience not found"});
+    if (removeIndex === -1) {
+      return res.status(404).json([{msg: "Experience not found"}]);
     }
     // delete 1 item from the index
     profile.experience.splice(removeIndex, 1);
 
     await profile.save();
-    res.json(profile)
+    res.status(200).json(profile);
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -241,15 +225,16 @@ router.delete('/experience/:exp_id', authMiddleware,async (req,res) => {
 router.put('/education',
   [authMiddleware,
     [
-      body('school','School is required').notEmpty(),
-      body('degree','Degree is required').notEmpty(),
-      body('fieldofstudy','Field of study is required').notEmpty(),
-      body('from','From is required').notEmpty()
+      body('school', 'School is required').notEmpty(),
+      body('degree', 'Degree is required').notEmpty(),
+      body('fieldofstudy', 'Field of study is required').notEmpty(),
+      body('from', 'From is required').notEmpty()
     ]
-  ],async (req, res) => {
-    const errors = validationResult(req);
-    if(errors.length > 0) {
-      return res.status(400).json({errors});
+  ],
+  async (req, res) => {
+    const {errors} = validationResult(req);
+    if (errors.length > 0) {
+      return res.status(400).json(errors);
     }
 
     const newEducation = {
@@ -268,42 +253,39 @@ router.put('/education',
 
       // alter experience array
       profile.education.unshift(newEducation);
-
       await profile.save();
 
-      res.json(profile);
+      res.status(200).json(profile);
     } catch (e) {
-      console.error(e.message);
-      res.status(500).send('Server error');
+      res.status(500).json([{msg: `Server error. ${e.message}`}])
     }
   })
 
 // @route   DELETE api/profile/education/:edu_id
 // @desc    Delete education from profile
 // @access  Private
-router.delete('/education/:edu_id', authMiddleware,async (req,res) => {
+router.delete('/education/:edu_id', authMiddleware, async (req, res) => {
   try {
     const profile = await Profile.findOne({user: req.user.id});
     // Get remove index
     const removeIndex = profile.education.map(item => item.id).indexOf(req.params.edu_id);
     // delete 1 item from the index
-    if(removeIndex === -1) {
-      return res.status(404).json({msg: 'Education not found'});
+    if (removeIndex === -1) {
+      return res.status(404).json([{msg: 'Education not found'}]);
     }
     profile.education.splice(removeIndex, 1);
 
     await profile.save();
-    res.json(profile)
+    res.status(200).json(profile);
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
 // @route   GET api/profile/github/:username
 // @desc    Get user repos from Github
 // @access  Public
-router.get('/github/:username', (req,res) => {
+router.get('/github/:username', (req, res) => {
   try {
     const options = {
       uri: `https://api.github.com/users/${req.params.username}/repos?per_page=5&
@@ -313,18 +295,16 @@ router.get('/github/:username', (req,res) => {
       headers: {'user-agent': 'node.js'}
     }
 
-    request(options, (error,response,body) => {
-      if(error) console.error(error);
+    request(options, (error, response, body) => {
 
-      if(response.statusCode !== 200) {
-        return res.status(404).json({msg: 'No Github profile found'});
+      if (response.statusCode !== 200) {
+        return res.status(404).json([{msg: 'No Github profile found'}]);
       }
 
       res.json(body)
     });
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 

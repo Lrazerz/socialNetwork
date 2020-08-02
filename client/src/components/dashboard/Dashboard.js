@@ -10,8 +10,8 @@ import Education from "./Education";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const {user} = useSelector(({auth}) => auth);
-  const {profile, loading} = useSelector(({profile}) => profile);
+  const {user, loading: authLoading} = useSelector(({auth}) => auth);
+  const {profile, loading: profileLoading} = useSelector(({profile}) => profile);
 
   useEffect(() => {
     dispatch(getCurrentProfile());
@@ -31,7 +31,7 @@ const Dashboard = () => {
           <Education education={profile.education}/>
           <div className="my-2">
             <button className="btn btn-danger" onClick={() => dispatch(deleteAccount())}>
-              <i className="fas fa-user-minus"/> Delete my account
+              <i className="fas fa-user-minus"/>{' '}Delete my account
             </button>
           </div>
         </> :
@@ -47,9 +47,7 @@ const Dashboard = () => {
     </>
   );
 
-  console.log('wtf', loading, !profile);
-
-  return loading && !profile ? <Spinner/> : renderData;
+  return (profileLoading || authLoading) ? <Spinner/> : renderData;
 }
 
 export default Dashboard;

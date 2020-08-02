@@ -13,12 +13,13 @@ const Post = require('../../models/Post');
 router.post('/', [
     authMiddleware,
     [
-      body('text','Text is required').notEmpty()
+      body('text', 'Text is required').notEmpty()
     ]
-  ], async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({errors: errors})
+  ],
+  async (req, res) => {
+    const {errors} = validationResult(req);
+    if (errors.length > 0) {
+      return res.status(400).json(errors);
     }
     try {
       const user = await User.findById(req.user.id).select('-password')
@@ -31,12 +32,11 @@ router.post('/', [
       });
 
       await newPost.save();
-      const posts = await Post.find().sort({date:-1});
+      const posts = await Post.find().sort({date: -1});
 
-      res.json(posts);
+      res.status(201).json(posts);
     } catch (e) {
-      console.error(e);
-      res.status(500).send('Server error');
+      res.status(500).json([{msg: `Server error. ${e.message}`}])
     }
   })
 
@@ -46,11 +46,10 @@ router.post('/', [
 router.get('/', authMiddleware, async (req, res) => {
   try {
     // sort from most recent
-    const posts = await Post.find().sort({ date: -1 });
+    const posts = await Post.find().sort({date: -1});
     await res.json(posts);
   } catch (e) {
-    console.error(e.message);
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -60,18 +59,17 @@ router.get('/', authMiddleware, async (req, res) => {
 router.get('/:post_id', authMiddleware, async (req, res) => {
   try {
     const post = await Post.findById(req.params.post_id);
-    if(!post) {
-      return res.status(404).json({msg: "Post not found"});
+    if (!post) {
+      return res.status(404).json([{msg: "Post not found"}]);
     }
 
-    await res.json(post);
+    res.json(post);
   } catch (e) {
-    console.error(e.message);
     // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
+    if (e.kind === 'ObjectId') {
+      return res.status(404).json([{msg: 'Post not found'}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -81,24 +79,23 @@ router.get('/:post_id', authMiddleware, async (req, res) => {
 router.delete('/:post_id', authMiddleware, async (req, res) => {
   try {
     const post = await Post.findById(req.params.post_id);
-    if(!post) {
-      return res.status(404).json({msg: "Post not found"});
+    if (!post) {
+      return res.status(404).json([{msg: "Post not found"}]);
     }
 
-    if(post.user.toString() !== req.user.id) {
+    if (post.user.toString() !== req.user.id) {
       // 401 - not authorized
-      return res.status(401).json({msg: "User not authorized"});
+      return res.status(401).json([{msg: "User not authorized"}]);
     }
     await post.remove();
-    const posts = await Post.find().sort({date:-1});
+    const posts = await Post.find().sort({date: -1});
     await res.json(posts);
   } catch (e) {
-    console.error(e.message);
     // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
+    if (e.kind === 'ObjectId') {
+      return res.status(404).json([{msg: 'Post not found'}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -108,30 +105,26 @@ router.delete('/:post_id', authMiddleware, async (req, res) => {
 // @access  Private
 router.put('/like/:post_id', authMiddleware, async (req, res) => {
   try {
-    console.log('try to find');
     let post = await Post.findById(req.params.post_id);
-    if(!post) {
-      return res.status(404).json({msg: "Post not found"});
+    if (!post) {
+      return res.status(404).json([{msg: "Post not found"}]);
     }
 
     // Check if the post has already been liked
-    if(post.likes.find(el => el.user.toString() === req.user.id)) {
-      return res.status(400).json({msg: "Post already liked"});
+    if (post.likes.find(el => el.user.toString() === req.user.id)) {
+      return res.status(400).json([{msg: "Post already liked"}]);
     }
 
     // Like
     post.likes.unshift({user: req.user.id});
-
     post = await post.save();
-
     await res.json(post.likes);
   } catch (e) {
-    console.error(e.message);
     // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
+    if (e.kind === 'ObjectId') {
+      return res.status(404).json([{msg: 'Post not found'}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}]);
   }
 })
 
@@ -141,28 +134,26 @@ router.put('/like/:post_id', authMiddleware, async (req, res) => {
 router.put('/unlike/:post_id', authMiddleware, async (req, res) => {
   try {
     let post = await Post.findById(req.params.post_id);
-    if(!post) {
+    if (!post) {
       return res.status(404).json({msg: "Post not found"});
     }
 
     // Check if the post has already been liked
     const postIndex = post.likes.findIndex(like => like.user.toString() === req.user.id);
 
-    if(postIndex === -1) {
-      return res.status(400).json({msg: "Post has not been liked "});
+    if (postIndex === -1) {
+      return res.status(400).json([{msg: "Post has not been liked "}]);
     }
-    post.likes.splice(postIndex,1);
-
+    // Remove like
+    post.likes.splice(postIndex, 1);
     post = await post.save();
-
     await res.json(post.likes);
   } catch (e) {
-    console.error(e.message);
     // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
+    if (e.kind === 'ObjectId') {
+      return res.status(404).json([{msg: 'Post not found'}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 
@@ -172,74 +163,72 @@ router.put('/unlike/:post_id', authMiddleware, async (req, res) => {
 router.post('/comment/:post_id',
   [
     authMiddleware,
-    [body('text','Text is required').notEmpty()]
+    [body('text', 'Text is required').notEmpty()]
   ], async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    let post = await Post.findById(req.params.post_id);
+    try {
+      const {errors} = validationResult(req);
+      if (errors.length > 0) {
+        return res.status(400).json(errors);
+      }
 
-    if(!post) {
-      return res.status(404).json({msg: "Post not found"});
+      const user = await User.findById(req.user.id);
+      let post = await Post.findById(req.params.post_id);
+
+      if (!post) {
+        return res.status(404).json({msg: "Post not found"});
+      }
+
+      // If reached limit of comments (10)
+      if (post.comments.length > 9) {
+        return res.status(400).json([{msg: "Reached limit of comments (10 comments per post)"}]);
+      }
+
+      const newComment = {
+        text: req.body.text,
+        name: user.name,
+        avatar: user.avatar,
+        user: req.user.id
+      }
+
+      post.comments.unshift(newComment);
+      post = await post.save();
+      await res.json(post.comments);
+    } catch (e) {
+      // wrong format of id
+      if (e.kind === 'ObjectId') {
+        return res.status(404).json([{msg: 'Post not found'}]);
+      }
+      res.status(500).json([{msg: `Server error. ${e.message}`}])
     }
+  })
 
-    const commentIndex = post.comments
-      .findIndex(cmnt => cmnt.user.toString() === req.user.id);
-
-    // if already commented
-    if(commentIndex !== -1) {
-      return res.status(400).json({msg: "Already commented"});
-    }
-
-    const newComment = {
-      text: req.body.text,
-      name: user.name,
-      avatar: user.avatar,
-      user: req.user.id
-    }
-
-    post.comments.unshift(newComment);
-
-    post = await post.save();
-
-    await res.json(post.comments);
-  } catch (e) {
-    console.error(e.message);
-    // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
-    }
-    res.status(500).send('Server error');
-  }
-})
-
-// @route   DELETE api/posts/comment/:post_id
+// @route   DELETE api/posts/comment/:post_id/:comment_id
 // @desc    Uncomment a post
 // @access  Private
-router.delete('/comment/:post_id', authMiddleware, async (req, res) => {
+router.delete('/comment/:post_id/:comment_id', authMiddleware, async (req, res) => {
   try {
     let post = await Post.findById(req.params.post_id);
-    if(!post) {
-      return res.status(404).json({msg: "Post not found"});
+    if (!post) {
+      return res.status(404).json([{msg: "Post not found"}]);
     }
 
-    // Check if the post has already been commented
-    const postIndex = post.comments.findIndex(cmnt => cmnt.user.toString() === req.user.id);
+    // Find comment index
+    const commentIndex = post.comments
+      .findIndex(cmnt => cmnt.user.toString() === req.user.id && cmnt._id.toString() === req.params.comment_id);
 
-    if(postIndex === -1) {
-      return res.status(400).json({msg: "Post has not been commented "});
+    if (commentIndex === -1) {
+      return res.status(400).json([{msg: "Comment to delete not found"}]);
     }
-    post.comments.splice(postIndex,1);
 
+    post.comments.splice(commentIndex, 1);
     post = await post.save();
-
     await res.json(post.comments);
   } catch (e) {
-    console.error(e.message);
     // wrong format of id
-    if(e.kind === 'ObjectId') {
-      return res.status(404).json({msg: 'Post not found'});
+    if (e.kind === 'ObjectId') {
+      return res.status(404).json([{msg: 'Post not found'}]);
     }
-    res.status(500).send('Server error');
+    res.status(500).json([{msg: `Server error. ${e.message}`}])
   }
 })
 

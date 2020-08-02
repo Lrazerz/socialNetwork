@@ -8,9 +8,13 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT,
-  PROFILE_CLEAR
+  PROFILE_CLEAR, AUTH_STARTED_LOADING
 } from "./types";
 import setAuthToken from "../../utils/setAuthToken";
+
+const _authStartedLoading = () => {
+  return {type: AUTH_STARTED_LOADING};
+}
 
 const _registerUserSuccess = (payload) => {
   return {type: REGISTER_SUCCESS, payload}
@@ -48,12 +52,11 @@ const _clearProfile = () => {
 
 export const loadUser = () => {
   return async dispatch => {
+    dispatch(_authStartedLoading());
     try {
       const res = await axios.get('/api/auth');
-
       dispatch(_userLoaded(res.data));
     } catch (e) {
-      console.log('LOAD USER FAILS');
       dispatch(_authError());
     }
   }
@@ -70,21 +73,18 @@ export const registerUser = (name, email, password) => {
     const body = JSON.stringify({name, email, password});
 
     try {
-      const res = await axios.post('/api/users', body, config);
+      dispatch(_authStartedLoading());
+      const res = await axios.post('/api/auth/signup', body, config);
 
       setAuthToken(res.data.token);
       dispatch(_registerUserSuccess(res.data));
       dispatch(loadUser());
     } catch (e) {
-      const {errors = null} = e.response.data;
-      if (errors) {
-        console.log('erorrs');
+      const errors = e.response.data;
+      if (errors.length > 0) {
         errors.forEach(err => {
-          console.log('foreach err', err);
           dispatch(setAlert(err.msg, 'danger'));
-        })
-      }
-      ;
+        })};
       dispatch(_registerUserFail());
     }
   }
@@ -101,21 +101,18 @@ export const loginUser = (email, password) => {
     const body = JSON.stringify({email, password});
 
     try {
-      const res = await axios.post('/api/auth', body, config);
+      dispatch(_authStartedLoading());
+      const res = await axios.post('/api/auth/signin', body, config);
 
       setAuthToken(res.data.token);
       dispatch(_loginUserSuccess(res.data.token));
       dispatch(loadUser());
     } catch (e) {
-      const {errors = null} = e.response.data;
-      if (errors) {
-        console.log('erorrs');
+      const errors = e.response.data;
+      if (errors.length > 0) {
         errors.forEach(err => {
-          console.log('foreach err', err);
           dispatch(setAlert(err.msg, 'danger'));
-        })
-      }
-      ;
+        })};
       dispatch(_loginUserFail());
     }
   }
@@ -123,6 +120,7 @@ export const loginUser = (email, password) => {
 
 export const logoutUser = () => {
   return async dispatch => {
+    dispatch(_authStartedLoading());
     dispatch(_clearProfile());
     dispatch(_logoutUser());
   }

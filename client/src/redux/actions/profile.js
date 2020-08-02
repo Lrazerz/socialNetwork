@@ -6,11 +6,13 @@ import {
   PROFILE_CLEAR,
   ACCOUTN_DELETED,
   PROFILES_LOADED,
-  REPOS_LOADED
+  REPOS_LOADED, PROFILE_STARTED_LOADING
 } from "./types";
 import {setAlert} from './alert';
 
-// todo always set loading: true in the start of action
+const _profileStartedLoading = () => {
+  return {type: PROFILE_STARTED_LOADING};
+}
 
 const _profileLoaded = (profile) => {
   return {type: PROFILE_LOADED, profile};
@@ -46,6 +48,7 @@ const _reposLoaded = (repos) => {
 export const getCurrentProfile = () => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
       const res = await axios.get('/api/profile/me');
 
       dispatch(_profileLoaded(res.data));
@@ -61,6 +64,7 @@ export const getAllProfiles = () => {
   return async dispatch => {
     dispatch(_profileClear());
     try {
+      dispatch(_profileStartedLoading());
       const res = await axios.get('/api/profile');
 
       dispatch(_profilesLoaded(res.data));
@@ -75,6 +79,7 @@ export const getAllProfiles = () => {
 export const getProfileById = (userId) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
       const res = await axios.get(`/api/profile/user/${userId}`);
 
       dispatch(_profileLoaded(res.data));
@@ -104,6 +109,7 @@ export const getGithubRepos = (username) => {
 export const createUpdateProfile = (formData, edit = false) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
 
       const config = {
         headers: {
@@ -141,6 +147,7 @@ export const createUpdateProfile = (formData, edit = false) => {
 export const addExperience = (formData) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
 
       const config = {
         headers: {
@@ -175,6 +182,7 @@ export const addExperience = (formData) => {
 export const addEducation = (formData) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
 
       const config = {
         headers: {
@@ -209,6 +217,7 @@ export const addEducation = (formData) => {
 export const deleteExperience = (experienceId) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
 
       const res = await axios.delete(`/api/profile/experience/${experienceId}`);
 
@@ -227,6 +236,7 @@ export const deleteExperience = (experienceId) => {
 export const deleteEducation = (educationId) => {
   return async dispatch => {
     try {
+      dispatch(_profileStartedLoading());
 
       const res = await axios.delete(`/api/profile/education/${educationId}`);
 
@@ -246,6 +256,7 @@ export const deleteAccount = (educationId) => {
 
     if (window.confirm('Are you sure? This can NOT be undone!')) {
       try {
+        dispatch(_profileStartedLoading());
         await axios.delete(`/api/profile`);
 
         dispatch(_profileClear());

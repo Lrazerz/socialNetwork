@@ -20,6 +20,7 @@ const Post = () => {
   }, [getPost, id]);
 
   if (loading || post === null) {
+    console.log('loading');
     return <Spinner/>;
   }
   return (

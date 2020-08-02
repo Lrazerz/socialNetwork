@@ -55,7 +55,7 @@ const EditProfile = props => {
       youtube: loading || !profile.social ? '' : profile.social.youtube,
       instagram: loading || !profile.social ? '' : profile.social.instagram
     });
-  },[loading, profile]);
+  },[profile]);
 
   const onValueChange = e => {
     // can't use functional form setFormData(prev => ...), https://reactjs.org/docs/events.html#event-pooling

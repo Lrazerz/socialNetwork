@@ -19,14 +19,28 @@ const Profile = () => {
     id && dispatch(getProfileById(id));
   }, [dispatch, id]);
 
+  if (!profile && !loading) {
+    return (
+      <>
+        <Link to='/posts' className='btn my-2'>
+          Back To Posts
+        </Link>
+        <p className="lead">
+          <i className="fas fa-address-book"></i>
+          {' User has not configured a profile yet'}
+        </p>
+      </>
+    )
+  }
+
   return (
     <>
-      {!profile || loading ? <Spinner/> :
+      {loading ? <Spinner/> :
         (
           <>
             <Link to='/profiles' className='btn btn-light'>Back to Profiles</Link>
             {auth.isAuthenticated && auth.loading === false && auth.user._id === profile.user._id && (
-              <Link to='/edit-profile' className='btn btn-dark'>Edit Profile</Link>
+              <Link to='/edit-profile' className='btn btn-dark'> Edit Profile</Link>
             )}
             <div className="profile-grid my-1">
               <ProfileTop profile={profile}/>

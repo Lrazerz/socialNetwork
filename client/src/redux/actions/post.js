@@ -1,6 +1,10 @@
 import axios from 'axios';
 import {setAlert} from './alert';
-import {COMMENTS_LOADED, LIKES_LOADED, POST_LOADED, POSTS_ERROR, POSTS_LOADED} from "./types";
+import {COMMENTS_LOADED, LIKES_LOADED, POST_LOADED, POST_STARTED_LOADING, POSTS_ERROR, POSTS_LOADED} from "./types";
+
+const _postsStartedLoading = () => {
+  return {type: POST_STARTED_LOADING}
+};
 
 const _postsLoaded = (posts) => {
   return {type: POSTS_LOADED, posts};
@@ -25,10 +29,16 @@ const _commentsLoaded = (comments) => {
 export const getPosts = () => {
   return async dispatch => {
     try {
+      dispatch(_postsStartedLoading());
       const res = await axios.get('/api/posts');
 
       dispatch(_postsLoaded(res.data));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
@@ -37,11 +47,17 @@ export const getPosts = () => {
 export const deletePost = id => {
   return async dispatch => {
     try {
+      dispatch(_postsStartedLoading());
       const res = await axios.delete(`/api/posts/${id}`);
 
       dispatch(_postsLoaded(res.data));
       dispatch(setAlert('Post successfully deleted','success'));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
@@ -50,6 +66,7 @@ export const deletePost = id => {
 export const addPost = formData => {
   return async dispatch => {
     try {
+      dispatch(_postsStartedLoading());
       const config = {
         headers: {
           'Content-Type': 'application/json'
@@ -60,6 +77,11 @@ export const addPost = formData => {
       dispatch(_postsLoaded(res.data));
       dispatch(setAlert('Post successfully created','success'));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
@@ -68,10 +90,16 @@ export const addPost = formData => {
 export const getPost = id => {
   return async dispatch => {
     try {
+      dispatch(_postsStartedLoading());
       const res = await axios.get(`/api/posts/${id}`);
 
       dispatch(_postLoaded(res.data));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
@@ -85,7 +113,11 @@ export const addLike = postId => {
 
       dispatch(_likesLoaded({postId, likes: res.data}));
     }catch (e) {
-      for(const key in e) console.log(key);
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.data.message, status: e.response.status}));
     }
   }
@@ -98,6 +130,11 @@ export const removeLike = postId => {
 
       dispatch(_likesLoaded({postId, likes: res.data}));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
@@ -106,6 +143,7 @@ export const removeLike = postId => {
 export const addComment = (postId, formData) => {
   return async dispatch => {
     try {
+      dispatch(_postsStartedLoading());
       const config = {
         headers: {
           'Content-Type': 'application/json'
@@ -116,8 +154,11 @@ export const addComment = (postId, formData) => {
       dispatch(_commentsLoaded(res.data));
       dispatch(setAlert('Comment added', 'success'));
     }catch (e) {
-      console.log(e.response);
-      for(const key in e) console.log(key);
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.data.message, status: e.response.status}));
     }
   }
@@ -126,10 +167,16 @@ export const addComment = (postId, formData) => {
 export const removeComment = (postId, commentId) => {
   return async dispatch => {
     try {
-      const res = await axios.delete(`/api/posts/comment/${postId}`);
+      dispatch(_postsStartedLoading());
+      const res = await axios.delete(`/api/posts/comment/${postId}/${commentId}`);
 
       dispatch(_commentsLoaded(res.data));
     }catch (e) {
+      const errors = e.response.data;
+      if (errors.length > 0) {
+        errors.forEach(err => {
+          dispatch(setAlert(err.msg, 'danger'));
+        })};
       dispatch(_postsError({msg: e.response.statusText, status: e.response.status}));
     }
   }
