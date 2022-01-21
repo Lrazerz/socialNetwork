@@ -1,46 +1,32 @@
-import {
-  COMMENTS_LOADED,
-  LIKES_LOADED,
-  POST_LOADED,
-  POST_STARTED_LOADING,
-  POSTS_ERROR,
-  POSTS_LOADED,
-} from '../actions/types';
+import { PostsState } from './types';
+import { PostsActionType, PostsAnyAction } from './actionsTypes';
 
-// maybe isAuthenticated should be true
-const initialState = {
-  posts: [],
-  post: null,
-  loading: true,
-  error: {},
-};
-
-export default (state, action) => {
+export const postsReducer = (state: PostsState, action: PostsAnyAction) => {
   switch (action.type) {
-    case POST_STARTED_LOADING:
+    case PostsActionType.PostsStartedLoading:
       return {
         ...state,
         loading: true,
       };
-    case POSTS_LOADED:
+    case PostsActionType.PostsLoaded:
       return {
         ...state,
         posts: action.posts,
         loading: false,
       };
-    case POST_LOADED:
+    case PostsActionType.PostLoaded:
       return {
         ...state,
         post: action.post,
         loading: false,
       };
-    case POSTS_ERROR:
+    case PostsActionType.PostsError:
       return {
         ...state,
         error: action.error,
         loading: false,
       };
-    case LIKES_LOADED:
+    case PostsActionType.LikesLoaded:
       return {
         ...state,
         posts: state.posts.map(post =>
@@ -48,7 +34,7 @@ export default (state, action) => {
         ),
         loading: false,
       };
-    case COMMENTS_LOADED:
+    case PostsActionType.CommentsLoaded:
       return {
         ...state,
         post: {

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { setAlert } from '../../../redux/actions/alert';
+import { setAlert } from '../../redux/actions/alert';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUser } from '../../../redux/actions/auth';
+import { registerUser } from '../../redux/actions/auth';
 import Spinner from '../../components/layout/Spinner';
 
-const Register = () => {
+const RegisterPage = () => {
   // todo maybe with reducer
   const [formData, setFormData] = useState({
     name: '',
@@ -95,4 +95,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterPage;
