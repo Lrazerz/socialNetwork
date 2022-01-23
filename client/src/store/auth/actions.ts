@@ -85,10 +85,10 @@ export const registerUser = (name: string, email: string, password: string) => {
       dispatch(loadUser()).catch(null);
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -119,10 +119,10 @@ export const loginUser = (email: string, password: string) => {
       dispatch(loadUser()).catch(null);
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });

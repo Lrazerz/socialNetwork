@@ -47,10 +47,10 @@ export const getPosts = () => {
       dispatch(_postsLoaded(data));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -77,10 +77,10 @@ export const deletePost = (postId: string) => {
       dispatch(setAlert('Post successfully deleted', 'success'));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -97,7 +97,7 @@ export const deletePost = (postId: string) => {
   };
 };
 
-export const addPost = (formData: FormData) => {
+export const addPost = (postText: string) => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     try {
       dispatch(_postsStartedLoading());
@@ -106,16 +106,16 @@ export const addPost = (formData: FormData) => {
           'Content-Type': 'application/json',
         },
       };
-      const { data } = await axios.post<Post[]>(`/api/posts`, formData, config);
+      const { data } = await axios.post<Post[]>(`/api/posts`, postText, config);
 
       dispatch(_postsLoaded(data));
       dispatch(setAlert('Post successfully created', 'success'));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -141,10 +141,10 @@ export const getPost = (postId: string) => {
       dispatch(_postLoaded(data));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -169,10 +169,10 @@ export const addLike = (postId: string) => {
       dispatch(_likesLoaded({ postId, likes }));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -197,10 +197,10 @@ export const removeLike = (postId: string) => {
       dispatch(_likesLoaded({ postId, likes }));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -217,7 +217,7 @@ export const removeLike = (postId: string) => {
   };
 };
 
-export const addComment = (postId: string, formData: FormData) => {
+export const addComment = (postId: string, commentText: string) => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     try {
       dispatch(_postsStartedLoading());
@@ -228,7 +228,7 @@ export const addComment = (postId: string, formData: FormData) => {
       };
       const { data } = await axios.post<Comment[]>(
         `/api/posts/comment/${postId}`,
-        formData,
+        commentText,
         config,
       );
 
@@ -236,10 +236,10 @@ export const addComment = (postId: string, formData: FormData) => {
       dispatch(setAlert('Comment added', 'success'));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -265,10 +265,10 @@ export const removeComment = (postId: string, commentId: string) => {
       dispatch(_commentsLoaded(data));
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });

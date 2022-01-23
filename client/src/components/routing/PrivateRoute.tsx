@@ -8,7 +8,6 @@ import Spinner from 'components/layout/Spinner';
 const PrivateRoute: FC = () => {
   const { isAuthenticated, loading } = useSelector(({ auth }: DevConnectorStore) => auth);
 
-  // todo spinner check
   if (loading) return <Spinner />;
 
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;

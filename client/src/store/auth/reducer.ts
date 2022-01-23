@@ -1,9 +1,10 @@
 import { ProfilesActionType, ProfilesAccountDeletedAction } from 'store/profiles/actionsTypes';
 import { AuthActionType, AuthAnyAction } from './actionsTypes';
-import { AuthState } from './types';
+import { authInitialState } from './initialState';
 
 export const authReducer = (
-  state: AuthState,
+  // eslint-disable-next-line @typescript-eslint/default-param-last
+  state = authInitialState,
   action: AuthAnyAction | ProfilesAccountDeletedAction,
 ) => {
   switch (action.type) {

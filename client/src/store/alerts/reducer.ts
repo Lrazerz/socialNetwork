@@ -1,8 +1,8 @@
 import { AlertActionType, AlertAnyAction } from './actionsTypes';
-import { AlertsState } from './types';
+import { alertsInitialState } from './initialState';
 
-// todo deny multiple identical alerts (maybe with msg) smth, maybe in actions with getState param
-export const alertsReducer = (state: AlertsState, action: AlertAnyAction) => {
+// eslint-disable-next-line @typescript-eslint/default-param-last
+export const alertsReducer = (state = alertsInitialState, action: AlertAnyAction) => {
   switch (action.type) {
     case AlertActionType.SetAlert:
       return [...state, action.alert];

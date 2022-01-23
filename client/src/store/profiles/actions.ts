@@ -13,7 +13,13 @@ import {
   ProfilesProfileUpdatedAction,
   ProfilesReposLoadedAction,
 } from './actionsTypes';
-import { Profile, GithubRepo } from './types';
+import {
+  Profile,
+  GithubRepo,
+  CreateUpdateProfileActionPayload,
+  AddEducationActionPayload,
+  AddExperienceActionPayload,
+} from './types';
 
 const _profileStartedLoading = (): ProfilesProfileStartedLoadingAction => {
   return { type: ProfilesActionType.ProfileStartedLoading };
@@ -128,7 +134,10 @@ export const getGithubRepos = (username: string) => {
   };
 };
 
-export const createUpdateProfile = (formData: FormData, isCreating = true) => {
+export const createUpdateProfile = (
+  formData: CreateUpdateProfileActionPayload,
+  isCreating = true,
+) => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     try {
       dispatch(_profileStartedLoading());
@@ -152,10 +161,10 @@ export const createUpdateProfile = (formData: FormData, isCreating = true) => {
       }
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -172,7 +181,7 @@ export const createUpdateProfile = (formData: FormData, isCreating = true) => {
   };
 };
 
-export const addExperience = (formData: FormData) => {
+export const addExperience = (formData: AddExperienceActionPayload) => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     try {
       dispatch(_profileStartedLoading());
@@ -192,10 +201,10 @@ export const addExperience = (formData: FormData) => {
       window.history.go();
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -212,7 +221,7 @@ export const addExperience = (formData: FormData) => {
   };
 };
 
-export const addEducation = (formData: FormData) => {
+export const addEducation = (formData: AddEducationActionPayload) => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     try {
       dispatch(_profileStartedLoading());
@@ -233,10 +242,10 @@ export const addEducation = (formData: FormData) => {
       window.history.go();
     } catch (e) {
       if ((e as { isAxiosError?: boolean })?.isAxiosError) {
-        const data = (e as AxiosError<{ errors: ApiRequestError[] }, unknown>)?.response?.data;
+        const data = (e as AxiosError<ApiRequestError[], unknown>)?.response?.data;
 
-        if (data?.errors && data.errors.length) {
-          data.errors.forEach(err => {
+        if (data && data?.length) {
+          data.forEach(err => {
             console.log('foreach err', err);
             dispatch(setAlert(err.msg, 'danger'));
           });
@@ -300,7 +309,7 @@ export const deleteEducation = (educationId: string) => {
   };
 };
 
-export const deleteAccount = (educationId: string) => {
+export const deleteAccount = () => {
   return async (dispatch: DevConnectorThunkDispatch) => {
     if (window.confirm('Are you sure? This can NOT be undone!')) {
       try {

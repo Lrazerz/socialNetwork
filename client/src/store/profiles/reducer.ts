@@ -1,8 +1,8 @@
 import { ProfilesAnyAction, ProfilesActionType } from './actionsTypes';
-import { ProfilesState } from './types';
 import { profilesInitialState } from './initialState';
 
-export const profilesReducer = (state: ProfilesState, action: ProfilesAnyAction) => {
+// eslint-disable-next-line @typescript-eslint/default-param-last
+export const profilesReducer = (state = profilesInitialState, action: ProfilesAnyAction) => {
   switch (action.type) {
     case ProfilesActionType.ProfileStartedLoading:
       return {

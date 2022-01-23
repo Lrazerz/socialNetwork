@@ -160,6 +160,9 @@ img {
     height: 80px;
     z-index: 100;
     border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-primary,

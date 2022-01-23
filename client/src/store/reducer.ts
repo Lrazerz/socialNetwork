@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-
 import { alertsReducer } from './alerts';
 import { authReducer } from './auth';
 import { profilesReducer } from './profiles';

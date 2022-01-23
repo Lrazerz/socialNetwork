@@ -1,7 +1,8 @@
-import { PostsState } from './types';
 import { PostsActionType, PostsAnyAction } from './actionsTypes';
+import { postsInitialState } from './initialState';
 
-export const postsReducer = (state: PostsState, action: PostsAnyAction) => {
+// eslint-disable-next-line @typescript-eslint/default-param-last
+export const postsReducer = (state = postsInitialState, action: PostsAnyAction) => {
   switch (action.type) {
     case PostsActionType.PostsStartedLoading:
       return {

@@ -16,7 +16,7 @@ const threadLoader = {
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
-  entry: './src/index.jsx',
+  entry: './src/index',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.gif'],
     // to resolve paths from tsconfig.json, also it's possible to manually write such a function

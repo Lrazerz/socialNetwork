@@ -1,4 +1,8 @@
+// to allow underscore _id
+/* eslint-disable @typescript-eslint/naming-convention */
+
 export type User = {
+  _id: string;
   avatar: string;
   date: string;
   email: string;
@@ -12,7 +16,7 @@ export type User = {
 
 export type AuthState = {
   token?: string;
-  isAuthenticated: boolean; // todo or what? dub token
+  isAuthenticated: boolean;
   loading: boolean;
   user?: User;
 };

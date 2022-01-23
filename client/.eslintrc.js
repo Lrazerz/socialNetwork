@@ -129,6 +129,11 @@ module.exports = {
             'position': 'after',
           },
           {
+            'pattern': 'store',
+            'group': 'internal',
+            'position': 'after',
+          },
+          {
             'pattern': 'store/**',
             'group': 'internal',
             'position': 'after',
