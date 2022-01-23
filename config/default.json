@@ -2,5 +2,5 @@
   "mongoURI": "mongodb+srv://lrazerz:lrazerz@devconnector.w8neo.mongodb.net/dev-connector?retryWrites=true&w=majority",
   "jwtSecret": "lk3lasdkfla",
   "githubClientId": "Iv1.364029d261ae7a44",
-  "githubSecret": "e0ea115c7fb33c3b0769c31d5e4dc1593aa9da58"
+  "githubSecret": "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"
 }
